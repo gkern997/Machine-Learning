@@ -1,3 +1,9 @@
+# This program discovers association rules between items in the "Groceries.csv" file
+# Said file contains market basket data for 9835 unique customers 
+# Author: Grayson Kern
+
+
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from mlxtend.frequent_patterns import apriori
@@ -12,39 +18,23 @@ te = TransactionEncoder()
 teList = te.fit(itemList).transform(itemList)
 ItemIndicator = pd.DataFrame(teList, columns = te.columns_)
 
-#nPurchases = df.groupby('Item').size()
-#fTable = pd.Series.sort_index(pd.Series.value_counts(nPurchases))
-#print(fTable)
-#print()
-
-#nItems = df.groupby('Customer').size()
-#fTable = pd.Series.sort_index(pd.Series.value_counts(nItems))
-#print(fTable)
-#print()
-
-itemSets = apriori(ItemIndicator, min_support = 0.007625826, use_colnames = True)
+itemSets = apriori(ItemIndicator, min_support = 0.007625826, use_colnames = True) # Only consider itemsets with support level >= 75
+print('Itemsets with support >= 75\n')
 print(itemSets)
-
-kMax = 0
-
-for i in range(0, 524):
-	kItemset = itemSets.iloc[i].itemsets
-	k = len(kItemset)
-	
-	if k > kMax:
-		kMax = k
-		
-print('Max K: ', kMax)
 print()
 
-rules = association_rules(itemSets, metric = 'confidence', min_threshold = 0.01)
+
+rules = association_rules(itemSets, metric = 'confidence', min_threshold = 0.01) # Discover association rules in the frequent itemsets
+print('Association rules with confidence >= 1%\n')
 print(rules)
+print()
 
 rules2 = association_rules(itemSets, metric = 'confidence', min_threshold = 0.6)
 print('Rules with confidence above 60%\n')
 print(rules2)
 print()
 
+# Generate a plot of confidence vs support for the discovered rules 
 fig, ax = plt.subplots(figsize = (10, 10))
 plt.scatter(rules['confidence'], rules['support'], s = rules['lift'])
 bins = plt.hexbin(rules['confidence'], rules['support'], C = rules['lift'], bins = 20, gridsize = 50)
